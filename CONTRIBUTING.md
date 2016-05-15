@@ -49,7 +49,6 @@ Easy Issues / Getting Started
 
 Implement simple pass-thru methods returning a dataframe for the tweepy methods grouped under:
 
- * timeline methods
  * status methods
  * direct message methods
  * friendship methods

@@ -11,16 +11,16 @@ if __name__ == '__main__':
         TWITTER_CONSUMER_SECRET
     )
 
-    df = tp.followers(limit=10)
+    user_id = tp.api_id
+
+    df = tp.home_timeline(limit=10)
     print(df.head())
 
-    df = tp.me()
-    print(df)
+    df = tp.statuses_lookup(id_=[x for x in df['id'].values], limit=10)
+    print(df.head())
 
-    df = tp.get_user(screen_name='willmcginnis')
-    print(df)
+    df = tp.user_timeline(id_=user_id, limit=10)
+    print(df.head())
 
-    df = tp.search_users(query='willmcginnis', limit=10)
-    print(df)
-
-    print(tp.api_screen_name)
+    df = tp.retweets_of_me(limit=10)
+    print(df.head())

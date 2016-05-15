@@ -16,6 +16,11 @@ __author__ = 'willmcginnis'
 
 
 class TwitterPandas(object):
+    """
+    The primary interface into twitter pandas, the client.
+
+    """
+
     def __init__(self, oauth_token, oauth_secret, consumer_key, consumer_secret, timeout=60):
         """
         Basic interface to twitter pandas is pretty much a wrapper around tweepy.  As such, we take in very similar args
@@ -42,6 +47,9 @@ class TwitterPandas(object):
             timeout=True
         )
 
+    # #################################################################
+    # #####  Internal functions and protected methods             #####
+    # #################################################################
     def _flatten_dict(self, data, layers=1, drop_deeper=True):
         """
         takes in a dictionary and will flatten it with level_1.level_2 as the key, for however many levels are
@@ -64,7 +72,41 @@ class TwitterPandas(object):
 
         return data
 
-    def followers(self, id=None, user_id=None, screen_name=None, limit=None):
+    def __str__(self):
+        """
+
+        :return:
+        """
+
+        return 'TwitterPandas Client For u=%s' % (self._api_username())
+
+    def _api_screen_name(self):
+        """
+        Returns the API screen name
+
+        :return:
+        """
+        return self.me()['screen_name'].values[0]
+
+    def _api_id(self):
+        """
+
+        :return:
+        """
+        return self.me()['id'].values[0]
+
+    @property
+    def api_screen_name(self):
+        return self._api_screen_name()
+
+    @property
+    def api_id(self):
+        return self._api_id()
+
+    # #################################################################
+    # #####  User Methods                                         #####
+    # #################################################################
+    def followers(self, id_=None, user_id=None, screen_name=None, limit=None):
         """
         Returns a dataframe of all data about followers for the user tied to the API keys.
 
@@ -75,7 +117,7 @@ class TwitterPandas(object):
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
             self.client.followers,
-            id=id,
+            id_=id_,
             user_id=user_id,
             screen_name=screen_name
         )
@@ -129,7 +171,7 @@ class TwitterPandas(object):
 
         return df
 
-    def get_user(self, id=None, user_id=None, screen_name=None,):
+    def get_user(self, id_=None, user_id=None, screen_name=None,):
         """
         Returns a dataframe with just one row, which contains all the information we have about that specific user.
 
@@ -140,7 +182,7 @@ class TwitterPandas(object):
         """
 
         data = self.client.get_user(
-            id=id,
+            id_=id_,
             user_id=user_id,
             screen_name=screen_name
         )
@@ -164,6 +206,135 @@ class TwitterPandas(object):
 
         # page through it and parse results
         ds = [self._flatten_dict(data._json, layers=3, drop_deeper=True)]
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    # #################################################################
+    # #####  Timeline Methods                                     #####
+    # #################################################################
+    def home_timeline(self, since_id=None, max_id=None, limit=None):
+        """
+
+        :param since_id:
+        :param max_id:
+        :param limit:
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.home_timeline,
+            since_id=since_id,
+            max_id=max_id,
+            count=limit
+        )
+
+        # page through it and parse results
+        ds = []
+        for status in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(status._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def statuses_lookup(self, id_=None, include_entities=None, trim_user=None, limit=None):
+        """
+
+        :param id:
+        :param include_entities:
+        :param trim_user:
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        data = self.client.statuses_lookup(
+            id_=id_,
+            include_entities=include_entities,
+            trim_user=trim_user
+        )
+
+        # page through it and parse results
+        ds = [self._flatten_dict(x._json, layers=3, drop_deeper=True) for x in data]
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def user_timeline(self, id_=None, user_id=None, screen_name=None, since_id=None, max_id=None, limit=None):
+        """
+
+        :param id:
+        :param user_id:
+        :param screen_name:
+        :param since_id:
+        :param max_id:
+        :param limit:
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.user_timeline,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name,
+            since_id=since_id,
+            max_id=max_id,
+            count=limit
+        )
+
+        # page through it and parse results
+        ds = []
+        for status in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(status._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def retweets_of_me(self, since_id=None, max_id=None, limit=None):
+        """
+
+        :param since_id:
+        :param max_id:
+        :param limit:
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.retweets_of_me,
+            since_id=since_id,
+            max_id=max_id,
+            count=limit
+        )
+
+        # page through it and parse results
+        ds = []
+        for status in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(status._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
 
         # form the dataframe
         df = pd.DataFrame(ds)
