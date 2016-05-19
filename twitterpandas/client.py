@@ -110,7 +110,10 @@ class TwitterPandas(object):
         """
         Returns a dataframe of all data about followers for the user tied to the API keys.
 
-        :param limit:
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
         :return:
         """
 
@@ -142,8 +145,8 @@ class TwitterPandas(object):
         Lets you structure a query and returns a dataframe with all of the users that match that query (max 1000 results
         as per API rules)
 
-        :param query:
-        :param limit:
+        :param query: The query to run against people search.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
         :return:
         """
 
@@ -175,9 +178,9 @@ class TwitterPandas(object):
         """
         Returns a dataframe with just one row, which contains all the information we have about that specific user.
 
-        :param id:
-        :param user_id:
-        :param screen_name:
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id:  Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
         :return:
         """
 
@@ -218,9 +221,9 @@ class TwitterPandas(object):
     def home_timeline(self, since_id=None, max_id=None, limit=None):
         """
 
-        :param since_id:
-        :param max_id:
-        :param limit:
+        :param since_id: Returns only statuses with an ID greater than (that is, more recent than) the specified ID.
+        :param max_id: Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
         :return:
         """
 
@@ -250,9 +253,9 @@ class TwitterPandas(object):
     def statuses_lookup(self, id_=None, include_entities=None, trim_user=None, limit=None):
         """
 
-        :param id:
-        :param include_entities:
-        :param trim_user:
+        :param id_: A list of Tweet IDs to lookup, up to 100
+        :param include_entities: A boolean indicating whether or not to include [entities](https://dev.twitter.com/docs/entities) in the returned tweets. Defaults to False.
+        :param trim_user: A boolean indicating if user IDs should be provided, instead of full user information. Defaults to False.
         :return:
         """
 
@@ -274,12 +277,12 @@ class TwitterPandas(object):
     def user_timeline(self, id_=None, user_id=None, screen_name=None, since_id=None, max_id=None, limit=None):
         """
 
-        :param id:
-        :param user_id:
-        :param screen_name:
-        :param since_id:
-        :param max_id:
-        :param limit:
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param since_id: Returns only statuses with an ID greater than (that is, more recent than) the specified ID.
+        :param max_id: Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
         :return:
         """
 
@@ -312,9 +315,9 @@ class TwitterPandas(object):
     def retweets_of_me(self, since_id=None, max_id=None, limit=None):
         """
 
-        :param since_id:
-        :param max_id:
-        :param limit:
+        :param since_id: Returns only statuses with an ID greater than (that is, more recent than) the specified ID.
+        :param max_id: Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
         :return:
         """
 
@@ -331,6 +334,39 @@ class TwitterPandas(object):
         for status in curr.items():
             # get the raw json, flatten it one layer and then discard anything nested farther
             ds.append(self._flatten_dict(status._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    # #################################################################
+    # #####  Favorite Methods                                     #####
+    # #################################################################
+    def favorites(self, id_=None, limit=None):
+        """
+        Returns a dataframe of all data about followers for the user tied to the API keys.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.favorites,
+            id_=id_,
+        )
+
+        # page through it and parse results
+        ds = []
+        for favorite in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(favorite._json, layers=3, drop_deeper=True))
 
             if limit is not None:
                 if len(ds) >= limit:

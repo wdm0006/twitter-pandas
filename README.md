@@ -13,19 +13,11 @@ library of this type: [git-pandas](https://github.com/wdm0006/git-pandas).
 ### Current State
 
 The library itself is based heavily on [tweepy](http://docs.tweepy.org/en/v3.5.0/), and as such the development and API 
-to twitter-pandas will follow it's API pretty closely.  To start with I've implemented the user-methods:
+to twitter-pandas will follow it's API pretty closely.  To start with I've implemented the:
 
- * me
- * search_users
- * followers
- * get_user
-
-And the timeline methods:
-
- * home_timeline
- * statuses_lookup
- * user_timeline
- * retweets_of_me
+ * user methods
+ * timeline methods
+ * favorite methods
  
 As well as some helper properties:
 
@@ -40,12 +32,10 @@ Going forward, we will work our way through [tweepy's api](http://docs.tweepy.or
 pandas-based interfaces to the methods in each of these groupings that return datasets (for now we are trying to stay 
 read-only where practical, with a data analysis focus).
 
- * timeline methods
  * status methods
  * direct message methods
  * friendship methods
  * account methods
- * favorite methods
  * block methods
  * saved search methods
  * help methods
