@@ -18,7 +18,8 @@ to twitter-pandas will follow it's API pretty closely.  To start with I've imple
  * user methods
  * timeline methods
  * favorite methods
- 
+ * account methods
+  
 As well as some helper properties:
 
  * api_id
@@ -35,7 +36,6 @@ read-only where practical, with a data analysis focus).
  * status methods
  * direct message methods
  * friendship methods
- * account methods
  * block methods
  * saved search methods
  * help methods

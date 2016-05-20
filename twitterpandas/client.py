@@ -103,6 +103,39 @@ class TwitterPandas(object):
     def api_id(self):
         return self._api_id()
 
+    @property
+    def credentials_valid(self):
+        return self.client.verify_credentials() is not False
+
+    # #################################################################
+    # #####  Account Methods                                      #####
+    # #################################################################
+    def rate_limit_status(self):
+        """
+        Returns a dataframe with the rate limit status for all resources and endpoints in the API.
+
+        :return:
+        """
+
+        data = self.client.rate_limit_status()
+
+        ds = []
+        for resource in data.get('resources', {}).keys():
+            for endpoint in data.get('resources').get(resource).keys():
+                ds.append({
+                    'resource': resource,
+                    'endpoint': endpoint,
+                    'reset': data.get('resources').get(resource).get(endpoint).get('reset'),
+                    'limit': data.get('resources').get(resource).get(endpoint).get('limit'),
+                    'remaining': data.get('resources').get(resource).get(endpoint).get('remaining'),
+                })
+
+        df = pd.DataFrame(ds)
+
+        df['reset'] = pd.to_datetime(df['reset'], unit='s')
+
+        return df
+
     # #################################################################
     # #####  User Methods                                         #####
     # #################################################################
