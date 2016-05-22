@@ -19,7 +19,8 @@ to twitter-pandas will follow it's API pretty closely.  To start with I've imple
  * timeline methods
  * favorite methods
  * account methods
-  
+ * trends methods
+ 
 As well as some helper properties:
 
  * api_id
@@ -40,7 +41,6 @@ read-only where practical, with a data analysis focus).
  * saved search methods
  * help methods
  * list methods
- * trend methods
  * geo methods
  
 The general idea is to:

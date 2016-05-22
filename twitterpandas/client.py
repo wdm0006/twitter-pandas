@@ -137,6 +137,78 @@ class TwitterPandas(object):
         return df
 
     # #################################################################
+    # #####  Trends Methods                                       #####
+    # #################################################################
+    def trends_available(self):
+        """
+
+        :return:
+        """
+
+        data = self.client.trends_available()
+
+        ds = []
+        for trend in data:
+            ds.append(self._flatten_dict(trend, layers=3, drop_deeper=True))
+
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def trends_place(self, id_=None, exclude=None):
+        """
+        Returns the trending topics for a given location id (can find it with the trends closest function).
+
+        :param id_:  The Yahoo! Where On Earth ID of the location to return trending information for. Global information is available by using 1 as the WOEID.
+        :param exclude: Setting this equal to hashtags will remove all hashtags from the trends list.
+        :return:
+        """
+
+        data = self.client.trends_place(id=id_, exclude=exclude)
+
+        ds = []
+        for trend in data:
+            as_of = trend.get('as_of')
+            created_at = trend.get('created_at')
+            woeid = trend.get('locations', [{}])[0].get('woeid')
+            name = trend.get('locations', [{}])[0].get('name')
+            for trend_topic in trend.get('trends', []):
+                ds.append({
+                    'as_of': as_of,
+                    'created_at': created_at,
+                    'woeid': woeid,
+                    'location_name': name,
+                    'name': trend_topic.get('name'),
+                    'promoted_content': trend_topic.get('name'),
+                    'query': trend_topic.get('query'),
+                    'tweet_volume': trend_topic.get('tweet_volume'),
+                    'url': trend_topic.get('url')
+                })
+
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def trends_closest(self, lat=None, long=None):
+        """
+        Returns a one row dataframe with the woeid and location information closes to the coordinates passed.
+
+        :param lat: If provided with a long parameter the available trend locations will be sorted by distance, nearest to furthest, to the co-ordinate pair. The valid ranges for longitude is -180.0 to +180.0 (West is negative, East is positive) inclusive.
+        :param long: If provided with a lat parameter the available trend locations will be sorted by distance, nearest to furthest, to the co-ordinate pair. The valid ranges for longitude is -180.0 to +180.0 (West is negative, East is positive) inclusive.
+        :return:
+        """
+
+        data = self.client.trends_closest(lat=lat, long=long)
+
+        ds = []
+        for trend in data:
+            ds.append(self._flatten_dict(trend, layers=3, drop_deeper=True))
+
+        df = pd.DataFrame(ds)
+
+        return df
+
+    # #################################################################
     # #####  User Methods                                         #####
     # #################################################################
     def followers(self, id_=None, user_id=None, screen_name=None, limit=None):
