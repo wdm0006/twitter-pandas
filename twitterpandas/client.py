@@ -518,17 +518,13 @@ class TwitterPandas(object):
         :return:
         """
 
-        # get full list of saved searches
-        data = self.client.saved_searches()
+        # get saved search from the API
+        data = self.client.get_saved_search(id_)
 
         ds = []
-
-        # loop through all searches
-        for search in data:
-            # check if search ID matches input ID
-            if id_ == search.id_str:
-                ds.append(self._flatten_dict(search.__dict__, layers=3))
-                break
+        
+        # append single saved search
+        ds.append(self._flatten_dict(data.__dict__))
         
         # convert a single SavedSearch object to a dataframe
         ds = pd.DataFrame(ds)
