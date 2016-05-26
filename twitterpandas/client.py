@@ -481,3 +481,58 @@ class TwitterPandas(object):
         df = pd.DataFrame(ds)
 
         return df
+
+
+    # #################################################################
+    # #####  Saved Searches Methods                               #####
+    # #################################################################
+    def saved_searches(self):
+        """
+    	Returns saved search attributes for the user tied to the API keys,
+        as a Pandas DataFrame that contains _api, created_at, id, id_str, 
+        name, position, query as columns
+
+    	:return:
+    	"""
+
+        data = self.client.saved_searches()
+
+        ds = []
+
+        # loop through SavedSearch objects return from the API
+        for saved_search in data:
+            # flatten the dictionary attribute of the object
+            ds.append(self._flatten_dict(saved_search.__dict__, layers=3)) 
+
+        # convert the flattened dictionaries to a dataframe
+        ds = pd.DataFrame(ds)
+
+        return ds 
+
+
+    def get_saved_search(self, id_):
+        """
+        Returns saved search attributes for one specific saved search object as a Pandas DataFrame
+
+        :param id_: Specifies the ID of the saved search object to convert to a DataFrame
+        :return:
+        """
+
+        # get full list of saved searches
+        data = self.client.saved_searches()
+
+        ds = []
+
+        # loop through all searches
+        for search in data:
+            # check if search ID matches input ID
+            if id_ == search.id_str:
+                ds.append(self._flatten_dict(search.__dict__, layers=3))
+                break
+        
+        # convert a single SavedSearch object to a dataframe
+        ds = pd.DataFrame(ds)
+
+        return ds
+
+
