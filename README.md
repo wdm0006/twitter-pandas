@@ -20,7 +20,8 @@ to twitter-pandas will follow it's API pretty closely.  To start with I've imple
  * favorite methods
  * account methods
  * trends methods
- 
+ * saved search methods
+  
 As well as some helper properties:
 
  * api_id
@@ -38,7 +39,6 @@ read-only where practical, with a data analysis focus).
  * direct message methods
  * friendship methods
  * block methods
- * saved search methods
  * help methods
  * list methods
  * geo methods
@@ -62,12 +62,12 @@ Installation / Usage
 
 To install use pip:
 
-    $ pip install git+https://github.com/wdm0006/twitterpandas.git
+    $ pip install git+https://github.com/wdm0006/twitter-pandas.git
 
 
 Or clone the repo:
 
-    $ git clone https://github.com/wdm0006/twitterpandas.git
+    $ git clone https://github.com/wdm0006/twitter-pandas.git
     $ python setup.py install
     
 Then let 'er rip:
