@@ -537,3 +537,97 @@ class TwitterPandas(object):
 
         return ds
 
+    # #################################################################
+    # #####  Friendship Methods                                   #####
+    # #################################################################
+    
+    # FIXME make sure input for all methods is corrected
+    # TODO convert everything to dataframe?
+    
+    def exists_friendship(self, source_id=None, source_user_id=None, source_screen_name=None, target_id=None, target_user_id=None, target_screen_name=None):
+        """
+        Checks if a friendship exists between two users. Will return True if user_a follows user_b, otherwise False.
+
+        :param source_id_: Specifies the ID or screen name of the source user.
+        :param source_user_id: Specifies the ID of the source user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param source_screen_name: Specifies the screen name of the source user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param target_id_: Specifies the ID or screen name of the target user.
+        :param target_user_id: Specifies the ID of the target user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param target_screen_name: Specifies the screen name of the target user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :return:
+        """
+    	
+        # create a tweepy cursor to safely return the data
+        source_curr = tweepy.Cursor(
+            self.client.friends_ids,
+            id_=source_id,
+            user_id=source_user_id,
+            screen_name=source_screen_name
+        )
+        for friend in source_curr.items():
+        	if friend == target_id:
+        		return True
+        return False
+        
+    def friends_ids(self, id_=None, user_id=None, screen_name=None, limit=None):
+        """
+		Returns an array containing the IDs of users being followed by the specified user.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.1
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+    	
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.friends_ids,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name
+        )
+
+        # cycle through curr.items() to get IDs of users
+        arr = []
+        for friend in curr.items():
+        	arr.append(friend)
+			# TODO if limit = 0, this shows one follower, change or no change?
+        	if limit is not None:
+        		if len(arr) >= limit:
+        			break
+
+        return arr
+    
+    def followers_ids(self, id_=None, user_id=None, screen_name=None, limit=None):
+        """
+		Returns an array containing the IDs of users following the specified user.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+    	
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.followers_ids,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name
+        )
+
+        # cycle through curr.items() to get IDs of users
+        arr = []
+        for follower in curr.items():
+        	arr.append(follower)
+			# TODO if limit = 0, this shows one follower, change or no change?
+        	if limit is not None:
+        		if len(arr) >= limit:
+        			break
+
+        return arr
+        
+        
+        
