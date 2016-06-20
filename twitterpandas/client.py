@@ -507,9 +507,9 @@ class TwitterPandas(object):
             ds.append(self._flatten_dict(saved_search.__dict__, layers=3))
 
         # convert the flattened dictionaries to a dataframe
-        ds = pd.DataFrame(ds)
+        df = pd.DataFrame(ds)
 
-        return ds
+        return df
 
 
     def get_saved_search(self, id_):
@@ -533,7 +533,67 @@ class TwitterPandas(object):
         ds.append(self._flatten_dict(data.__dict__))
         
         # convert a single SavedSearch object to a dataframe
-        ds = pd.DataFrame(ds)
+        df = pd.DataFrame(ds)
 
-        return ds
+        return df
 
+    # #################################################################
+    # #####  Direct Message Methods                               #####
+    # #################################################################
+    def direct_messages(self, since_id=None, max_id=None, layers=1, page=0, full_text=False, include_user_data=False):
+        """
+        Returns direct messages sent to the user tied to the API keys, in the form
+        of a Pandas DataFrame
+
+        :param since_id:
+        :param max_id:
+        :param count:
+        :param page:
+        :param full_text:
+        :return:
+        """
+
+        # get direct messages sent to the user from the API
+        data = self.client.direct_messages()
+        include_user_data = True # for testing purposes
+
+        ds = []
+        for direct_message in data:
+            dict_data = self._flatten_dict(direct_message.__dict__)
+
+            temp_data_dict = {}
+
+            temp_data_dict['created_at'] = dict_data['created_at']
+            temp_data_dict['id'] = dict_data['id']
+            temp_data_dict['id_str'] = dict_data['id_str']
+
+            # TDOD: Fix UnicodeEncodeError caused by emojis
+            # temp_data_dict['text'] = dict_data['text']
+
+            if dict_data['entities.urls']:
+                # only pull one type of URL from entities.url to avoid
+                # multiple, repetitive data per row in the entities.url column
+                for dictionary in dict_data['entities.urls']:
+                    temp_data_dict['entities.urls_url'] = dictionary['url']
+
+            if dict_data['entities.user_mentions']:
+                for dictionary in dict_data['entities.user_mentions']:
+                    temp_data_dict['entities.user_mentions_id_str'] = dictionary['id_str']
+                    temp_data_dict['entities.user_mentions_name'] = dictionary['name']
+                    temp_data_dict['entities.user_mentions_screen_name'] = dictionary['screen_name']
+
+            if dict_data['entities.hashtags']:
+                for dictionary in dict_data['entities.hashtags']:
+                    temp_data_dict['entities.hashtags_text'] = dictionary['text']
+
+            # includes a large amount of data so this uses
+            # a user-settable boolean to add in recipient and sender info
+            if include_user_data:
+                ds.append(self._flatten_dict(dict_data['recipient']._json))
+                ds.append(self._flatten_dict(dict_data['sender']._json))
+
+            ds.append(temp_data_dict)
+
+
+        df = pd.DataFrame(ds)
+        return df
