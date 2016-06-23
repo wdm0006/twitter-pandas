@@ -11,15 +11,18 @@
 import warnings
 import tweepy
 import pandas as pd
+import sys
 
 __author__ = 'willmcginnis'
 
+NON_BMP_MAP = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 
 class TwitterPandas(object):
     """
     The primary interface into twitter pandas, the client.
 
     """
+
 
     def __init__(self, oauth_token, oauth_secret, consumer_key, consumer_secret, timeout=60):
         """
@@ -567,8 +570,117 @@ class TwitterPandas(object):
             temp_data_dict['id'] = dict_data['id']
             temp_data_dict['id_str'] = dict_data['id_str']
 
-            # TDOD: Fix UnicodeEncodeError caused by emojis
-            # temp_data_dict['text'] = dict_data['text']
+            if dict_data['entities.urls']:
+                # only pull one type of URL from entities.url to avoid
+                # multiple, repetitive data per row in the entities.url column
+                for dictionary in dict_data['entities.urls']:
+                    temp_data_dict['entities.urls_url'] = dictionary['url']
+
+            if dict_data['entities.user_mentions']:
+                for dictionary in dict_data['entities.user_mentions']:
+                    temp_data_dict['entities.user_mentions_id_str'] = dictionary['id_str']
+                    temp_data_dict['entities.user_mentions_name'] = dictionary['name']
+                    temp_data_dict['entities.user_mentions_screen_name'] = dictionary['screen_name']
+
+            if dict_data['entities.hashtags']:
+                for dictionary in dict_data['entities.hashtags']:
+                    temp_data_dict['entities.hashtags_text'] = dictionary['text']
+
+            # includes a large amount of data so this uses
+            # a user-settable boolean to add in recipient and sender info
+            if include_user_data:
+                ds.append(self._flatten_dict(dict_data['recipient']._json))
+                ds.append(self._flatten_dict(dict_data['sender']._json))
+
+            # uses translation table to map everything outside of the bmp
+            temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+            ds.append(temp_data_dict)
+
+
+        df = pd.DataFrame(ds)
+        return df
+
+
+    def get_direct_message(self, id_=None, include_user_data=False):
+        """
+        Returns a single direct message object sent to the user tied to the API keys
+        in the form of a Pandas DataFrame
+
+        :param since_id:
+        :param id_:
+        :param full_text:
+        :return:
+        """
+
+        # get direct messages sent to the user from the API
+        data = self.client.get_direct_message(id=id_)
+
+        ds = []
+        dict_data = self._flatten_dict(data.__dict__)
+
+        temp_data_dict = {}
+
+        temp_data_dict['created_at'] = dict_data['created_at']
+        temp_data_dict['id'] = dict_data['id']
+        temp_data_dict['id_str'] = dict_data['id_str']
+
+        if dict_data['entities.urls']:
+            # only pull one type of URL from entities.url to avoid
+            # multiple, repetitive data per row in the entities.url column
+            for dictionary in dict_data['entities.urls']:
+                temp_data_dict['entities.urls_url'] = dictionary['url']
+
+        if dict_data['entities.user_mentions']:
+            for dictionary in dict_data['entities.user_mentions']:
+                temp_data_dict['entities.user_mentions_id_str'] = dictionary['id_str']
+                temp_data_dict['entities.user_mentions_name'] = dictionary['name']
+                temp_data_dict['entities.user_mentions_screen_name'] = dictionary['screen_name']
+
+        if dict_data['entities.hashtags']:
+            for dictionary in dict_data['entities.hashtags']:
+                temp_data_dict['entities.hashtags_text'] = dictionary['text']
+
+        # includes a large amount of data so this uses
+        # a user-settable boolean to add in recipient and sender info
+        if include_user_data:
+            ds.append(self._flatten_dict(dict_data['recipient']._json))
+            ds.append(self._flatten_dict(dict_data['sender']._json))
+
+        # uses translation table to map everything outside of the bmp
+        temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+        ds.append(temp_data_dict)
+
+        df = pd.DataFrame(ds)
+        return df
+
+
+    def sent_direct_messages(self, since_id=None, max_id=None, layers=1, page=0, full_text=False, include_user_data=False):
+        """
+        Returns direct message objects sent by the user tied to the API keys
+        in the form of a Pandas DataFrame
+
+        :param since_id:
+        :param max_id:
+        :param count:
+        :param page:
+        :param full_text:
+        :return:
+        """
+
+        # get direct messages sent by the user from the API
+        data = self.client.sent_direct_messages()
+
+        ds = []
+        for direct_message in data:
+            dict_data = self._flatten_dict(direct_message.__dict__)
+
+            temp_data_dict = {}
+
+            temp_data_dict['created_at'] = dict_data['created_at']
+            temp_data_dict['id'] = dict_data['id']
+            temp_data_dict['id_str'] = dict_data['id_str']
 
             if dict_data['entities.urls']:
                 # only pull one type of URL from entities.url to avoid
@@ -591,6 +703,9 @@ class TwitterPandas(object):
             if include_user_data:
                 ds.append(self._flatten_dict(dict_data['recipient']._json))
                 ds.append(self._flatten_dict(dict_data['sender']._json))
+
+            # uses translation table to map everything outside of the bmp
+            temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
 
             ds.append(temp_data_dict)
 
