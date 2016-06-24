@@ -491,12 +491,12 @@ class TwitterPandas(object):
     # #################################################################
     def saved_searches(self):
         """
-    	Returns saved search attributes for the user tied to the API keys,
+      Returns saved search attributes for the user tied to the API keys,
         as a Pandas DataFrame that contains created_at, id, id_str, 
         name, position, query as columns
 
-    	:return:
-    	"""
+      :return:
+      """
 
         data = self.client.saved_searches()
 
@@ -543,7 +543,7 @@ class TwitterPandas(object):
     # #################################################################
     # #####  Direct Message Methods                               #####
     # #################################################################
-    def direct_messages(self, since_id=None, max_id=None, layers=1, page=0, full_text=False, include_user_data=False):
+    def direct_messages(self, since_id=None, max_id=None, limit=1, page=1, full_text=False, include_user_data=False):
         """
         Returns direct messages sent to the user tied to the API keys, in the form
         of a Pandas DataFrame
@@ -557,8 +557,8 @@ class TwitterPandas(object):
         """
 
         # get direct messages sent to the user from the API
-        data = self.client.direct_messages()
-        include_user_data = True # for testing purposes
+        data = self.client.direct_messages(since_id=since_id, max_id=max_id,
+                                           count=limit, page=page, full_text=full_text)
 
         ds = []
         for direct_message in data:
@@ -596,7 +596,6 @@ class TwitterPandas(object):
             temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
 
             ds.append(temp_data_dict)
-
 
         df = pd.DataFrame(ds)
         return df
@@ -656,7 +655,7 @@ class TwitterPandas(object):
         return df
 
 
-    def sent_direct_messages(self, since_id=None, max_id=None, layers=1, page=0, full_text=False, include_user_data=False):
+    def sent_direct_messages(self, since_id=None, max_id=None, limit=1, page=1, full_text=False, include_user_data=False):
         """
         Returns direct message objects sent by the user tied to the API keys
         in the form of a Pandas DataFrame
@@ -670,7 +669,8 @@ class TwitterPandas(object):
         """
 
         # get direct messages sent by the user from the API
-        data = self.client.sent_direct_messages()
+        data = self.client.sent_direct_messages(since_id=since_id, max_id=max_id,
+                                                count=limit, page=page, full_text=full_text)
 
         ds = []
         for direct_message in data:
@@ -708,7 +708,6 @@ class TwitterPandas(object):
             temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
 
             ds.append(temp_data_dict)
-
 
         df = pd.DataFrame(ds)
         return df
