@@ -53,6 +53,5 @@ Implement simple pass-thru methods returning a dataframe for the tweepy methods 
  * direct message methods
  * friendship methods
  * block methods
- * saved search methods
  * help methods
  * geo methods
