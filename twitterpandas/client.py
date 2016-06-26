@@ -482,18 +482,17 @@ class TwitterPandas(object):
 
         return df
 
-
     # #################################################################
     # #####  Saved Searches Methods                               #####
     # #################################################################
     def saved_searches(self):
         """
-    	Returns saved search attributes for the user tied to the API keys,
-        as a Pandas DataFrame that contains created_at, id, id_str, 
+        Returns saved search attributes for the user tied to the API keys,
+        as a Pandas DataFrame that contains created_at, id, id_str,
         name, position, query as columns
 
-    	:return:
-    	"""
+        :return:
+        """
 
         data = self.client.saved_searches()
 
@@ -510,7 +509,6 @@ class TwitterPandas(object):
         ds = pd.DataFrame(ds)
 
         return ds
-
 
     def get_saved_search(self, id_):
         """
@@ -536,4 +534,193 @@ class TwitterPandas(object):
         ds = pd.DataFrame(ds)
 
         return ds
+
+    # #################################################################
+    # #####  List Methods                                         #####
+    # #################################################################
+    def lists(self):
+        """
+        List the lists of the specified user. Private lists will be included if the authenticated users is the same as
+        the user who’s lists are being returned.
+
+        :return:
+        """
+
+        data = self.client.lists_all()
+
+        ds = []
+        for x in data:
+            ds.append({k: v for k, v in x.__dict__.items() if k not in ['_api', 'user']})
+
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def lists_memberships(self):
+        """
+        List the lists the specified user has been added to.
+
+        :return:
+        """
+
+        data = self.client.lists_memberships()
+
+        ds = []
+        for x in data:
+            ds.append({k: v for k, v in x.__dict__.items() if k not in ['_api', 'user']})
+
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def lists_subscriptions(self):
+        """
+        List the lists the specified user follows.
+
+        :return:
+        """
+
+        data = self.client.lists_subscriptions()
+
+        ds = []
+        for x in data:
+            ds.append({k: v for k, v in x.__dict__.items() if k not in ['_api', 'user']})
+
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def list_timeline(self, owner, slug, since_id=None, max_id=None, limit=None):
+        """
+        Show tweet timeline for members of the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :param since_id: Returns only statuses with an ID greater than (that is, more recent than) the specified ID.
+        :param max_id: Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.
+        :return:
+        """
+
+        data = self.client.list_timeline(
+            owner,
+            slug,
+            since_id=since_id,
+            max_id=max_id
+        )
+
+        # page through it and parse results
+        ds = []
+        for timeline_item in data:
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(timeline_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def get_list(self, owner=None, slug=None, limit=None):
+        """
+        Show the specified list. Private lists will only be shown if the authenticated user owns the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        data = self.client.get_list(
+            owner,
+            slug
+        )
+
+        # page through it and parse results
+        ds = []
+        for timeline_item in data:
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(timeline_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def list_members(self, owner=None, slug=None, limit=None):
+        """
+        Returns the members of the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # TODO: fix when it's fixed in tweepy: https://github.com/tweepy/tweepy/issues/697
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.get_list,
+            owner=owner,
+            slug=slug
+        )
+
+        # page through it and parse results
+        ds = []
+        for list_item in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(list_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def list_subscribers(self, owner=None, slug=None, limit=None):
+        """
+        Returns the subscribers of the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # TODO: fix when it's fixed in tweepy: https://github.com/tweepy/tweepy/issues/697
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.list_subscribers,
+            owner=owner,
+            slug=slug
+        )
+
+        # page through it and parse results
+        ds = []
+        for list_item in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(list_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+
 

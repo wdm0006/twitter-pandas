@@ -55,5 +55,4 @@ Implement simple pass-thru methods returning a dataframe for the tweepy methods 
  * block methods
  * saved search methods
  * help methods
- * list methods
  * geo methods
