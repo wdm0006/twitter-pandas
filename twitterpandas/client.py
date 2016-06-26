@@ -511,7 +511,6 @@ class TwitterPandas(object):
 
         return ds
 
-
     def get_saved_search(self, id_):
         """
         Returns saved search attributes for one specific saved search object as a Pandas DataFrame
@@ -523,7 +522,7 @@ class TwitterPandas(object):
 
         # get saved search from the API
         data = self.client.get_saved_search(id_)
-    
+
         ds = []
 
         # remove _api attribute
@@ -537,3 +536,130 @@ class TwitterPandas(object):
 
         return ds
 
+    # #################################################################
+    # #####  Friendship Methods                                   #####
+    # #################################################################
+    def exists_friendship(self, source_id=None, source_user_id=None, source_screen_name=None, target_id=None, target_user_id=None, target_screen_name=None):
+        """
+        Checks if a friendship exists between two users. Will return True if user_a follows user_b, otherwise False.
+
+        :param source_id_: Specifies the ID or screen name of the source user.
+        :param source_user_id: Specifies the ID of the source user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param source_screen_name: Specifies the screen name of the source user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param target_id_: Specifies the ID or screen name of the target user.
+        :param target_user_id: Specifies the ID of the target user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param target_screen_name: Specifies the screen name of the target user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :return:
+        """
+
+		# get friendship from the API
+        data = self.client.show_friendship(
+        	source_id= source_id, 
+        	source_screen_name = source_screen_name, 
+        	target_id = target_id, 
+        	target_screen_name = target_screen_name
+		)
+
+        # return value of following atttribute for user_a
+        return data[0].following
+
+    def show_friendship(self, source_id=None, source_screen_name=None, target_id=None, target_screen_name=None):
+        """
+        Returns detailed information about the relationship between two users.
+
+        :param source_id: The user_id of the subject user.
+        :param source_screen_name: The screen_name of the subject user.
+        :param target_id: The user_id of the target user.
+        :param target_screen_name: The screen_name of the target user.
+        :return:
+        """
+
+        # get friendship from the API
+        data = self.client.show_friendship(
+        	source_id= source_id, 
+        	source_screen_name = source_screen_name, 
+        	target_id = target_id, 
+        	target_screen_name = target_screen_name
+		)
+
+        ds = []
+
+        # remove _api attribute
+        for user in data:
+        	user.__dict__.pop('_api')
+
+        	# append friendship search
+        	ds.append(self._flatten_dict(user.__dict__))
+        	
+        # convert a single Friendship objects to a dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def friends_ids(self, id_=None, screen_name=None, user_id=None, limit=None):
+        """
+		Returns an array containing the IDs of users being followed by the specified user.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.1
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+    	
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.friends_ids,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name
+        )
+
+        # page through it and parse results
+        ds = []
+        
+        for friend in curr.items():
+        	ds.append(friend)
+
+        	if limit is not None:
+        		if len(arr) >= limit:
+        			break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def followers_ids(self, id_=None, screen_name=None, user_id=None, limit=None):
+        """
+		Returns an array containing the IDs of users following the specified user.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.followers_ids,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name
+        )
+
+        # page through it and parse results
+        ds = []
+        
+        for follower in curr.items():
+        	ds.append(follower)
+
+        	if limit is not None:
+        		if len(ds) >= limit:
+        			break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
