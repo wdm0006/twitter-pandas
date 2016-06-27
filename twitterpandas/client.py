@@ -622,7 +622,7 @@ class TwitterPandas(object):
         	ds.append(friend)
 
         	if limit is not None:
-        		if len(arr) >= limit:
+        		if len(ds) >= limit:
         			break
 
         # form the dataframe
