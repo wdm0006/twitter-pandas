@@ -13,6 +13,12 @@ if __name__ == '__main__':
 	)
 
 	user_id = tp.api_id
+
+	df = tp.followers_ids(user_id, limit = 10)
+	print(df.head())
+	print('\n')
+	print(df.info())
+	print('\n\n')
 	
 	df = tp.friends_ids(id_ = user_id, limit = 10)
 	print(df.head())
