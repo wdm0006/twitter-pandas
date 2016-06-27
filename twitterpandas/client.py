@@ -491,12 +491,12 @@ class TwitterPandas(object):
     # #################################################################
     def saved_searches(self):
         """
-      Returns saved search attributes for the user tied to the API keys,
+        Returns saved search attributes for the user tied to the API keys,
         as a Pandas DataFrame that contains created_at, id, id_str, 
         name, position, query as columns
 
-      :return:
-      """
+        :return:
+        """
 
         data = self.client.saved_searches()
 
@@ -589,13 +589,26 @@ class TwitterPandas(object):
             # includes a large amount of data so this uses
             # a user-settable boolean to add in recipient and sender info
             if include_user_data:
-                ds.append(self._flatten_dict(dict_data['recipient']._json))
-                ds.append(self._flatten_dict(dict_data['sender']._json))
+                sender_data = self._flatten_dict(dict_data['sender']._json)
+                recipient_data = self._flatten_dict(dict_data['recipient']._json)
 
-            # uses translation table to map everything outside of the bmp
-            temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
+                for key in sender_data:
+                    if "sender_" not in key:
+                        sender_data["sender_{}".format(key)] = sender_data.pop(key)
 
-            ds.append(temp_data_dict)
+                for key in recipient_data:
+                    if "recipient_" not in key:
+                        recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
+
+                merged_data = sender_data.copy()
+                merged_data.update(recipient_data)
+
+                # uses translation table to map everything outside of the bmp
+                temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+                merged_data.update(temp_data_dict)
+
+                ds.append(merged_data)
 
         df = pd.DataFrame(ds)
         return df
@@ -643,13 +656,26 @@ class TwitterPandas(object):
         # includes a large amount of data so this uses
         # a user-settable boolean to add in recipient and sender info
         if include_user_data:
-            ds.append(self._flatten_dict(dict_data['recipient']._json))
-            ds.append(self._flatten_dict(dict_data['sender']._json))
+            sender_data = self._flatten_dict(dict_data['sender']._json)
+            recipient_data = self._flatten_dict(dict_data['recipient']._json)
 
-        # uses translation table to map everything outside of the bmp
-        temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
+            for key in sender_data:
+                if "sender_" not in key:
+                    sender_data["sender_{}".format(key)] = sender_data.pop(key)
 
-        ds.append(temp_data_dict)
+            for key in recipient_data:
+                if "recipient_" not in key:
+                    recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
+
+            merged_data = sender_data.copy()
+            merged_data.update(recipient_data)
+
+            # uses translation table to map everything outside of the bmp
+            temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+            merged_data.update(temp_data_dict)
+
+            ds.append(merged_data)
 
         df = pd.DataFrame(ds)
         return df
@@ -701,13 +727,26 @@ class TwitterPandas(object):
             # includes a large amount of data so this uses
             # a user-settable boolean to add in recipient and sender info
             if include_user_data:
-                ds.append(self._flatten_dict(dict_data['recipient']._json))
-                ds.append(self._flatten_dict(dict_data['sender']._json))
+                sender_data = self._flatten_dict(dict_data['sender']._json)
+                recipient_data = self._flatten_dict(dict_data['recipient']._json)
 
-            # uses translation table to map everything outside of the bmp
-            temp_data_dict['text'] = dict_data['text'].translate(NON_BMP_MAP)
+                for key in sender_data:
+                    if "sender_" not in key:
+                        sender_data["sender_{}".format(key)] = sender_data.pop(key)
 
-            ds.append(temp_data_dict)
+                for key in recipient_data:
+                    if "recipient_" not in key:
+                        recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
+
+                merged_data = sender_data.copy()
+                merged_data.update(recipient_data)
+
+                # uses translation table to map everything outside of the bmp
+                temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+                merged_data.update(temp_data_dict)
+
+                ds.append(merged_data)
 
         df = pd.DataFrame(ds)
         return df
