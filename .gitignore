@@ -38,3 +38,6 @@ docs/_build
 
 # Cookiecutter
 output/
+
+# Mac files
+.DS_Store

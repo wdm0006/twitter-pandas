@@ -9,11 +9,14 @@
 """
 
 import warnings
+import sys
 
 import tweepy
 import pandas as pd
 
 __author__ = 'willmcginnis'
+
+NON_BMP_MAP = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 
 
 class TwitterPandas(object):
@@ -493,7 +496,11 @@ class TwitterPandas(object):
     def saved_searches(self):
         """
         Returns saved search attributes for the user tied to the API keys,
+<<<<<<< HEAD
+        as a Pandas DataFrame that contains created_at, id, id_str, 
+=======
         as a Pandas DataFrame that contains created_at, id, id_str,
+>>>>>>> master
         name, position, query as columns
 
         :return:
@@ -511,9 +518,9 @@ class TwitterPandas(object):
             ds.append(self._flatten_dict(saved_search.__dict__, layers=3))
 
         # convert the flattened dictionaries to a dataframe
-        ds = pd.DataFrame(ds)
+        df = pd.DataFrame(ds)
 
-        return ds
+        return df
 
     def get_saved_search(self, id_):
         """
@@ -536,9 +543,219 @@ class TwitterPandas(object):
         ds.append(self._flatten_dict(data.__dict__))
 
         # convert a single SavedSearch object to a dataframe
-        ds = pd.DataFrame(ds)
+        df = pd.DataFrame(ds)
 
-        return ds
+        return df
+
+    # #################################################################
+    # #####  Direct Message Methods                               #####
+    # #################################################################
+    def direct_messages(self, since_id=None, max_id=None, limit=1, page=1, full_text=False, include_user_data=False):
+        """
+        Returns direct messages sent to the user tied to the API keys, in the form
+        of a Pandas DataFrame
+
+        :param since_id:
+        :param max_id:
+        :param count:
+        :param page:
+        :param full_text:
+        :return:
+        """
+
+        # get direct messages sent to the user from the API
+        data = self.client.direct_messages(since_id=since_id, max_id=max_id,
+                                           count=limit, page=page, full_text=full_text)
+
+        ds = []
+        for direct_message in data:
+            dict_data = self._flatten_dict(direct_message.__dict__)
+
+            temp_data_dict = {}
+
+            temp_data_dict['created_at'] = dict_data['created_at']
+            temp_data_dict['id'] = dict_data['id']
+            temp_data_dict['id_str'] = dict_data['id_str']
+
+            if dict_data['entities.urls']:
+                # only pull one type of URL from entities.url to avoid
+                # multiple, repetitive data per row in the entities.url column
+                for dictionary in dict_data['entities.urls']:
+                    temp_data_dict['entities.urls_url'] = dictionary['url']
+
+            if dict_data['entities.user_mentions']:
+                for dictionary in dict_data['entities.user_mentions']:
+                    temp_data_dict['entities.user_mentions_id_str'] = dictionary['id_str']
+                    temp_data_dict['entities.user_mentions_name'] = dictionary['name']
+                    temp_data_dict['entities.user_mentions_screen_name'] = dictionary['screen_name']
+
+            if dict_data['entities.hashtags']:
+                for dictionary in dict_data['entities.hashtags']:
+                    temp_data_dict['entities.hashtags_text'] = dictionary['text']
+
+            # includes a large amount of data so this uses
+            # a user-settable boolean to add in recipient and sender info
+            if include_user_data:
+                sender_data = self._flatten_dict(dict_data['sender']._json)
+                recipient_data = self._flatten_dict(dict_data['recipient']._json)
+
+                for key in sender_data:
+                    if "sender_" not in key:
+                        sender_data["sender_{}".format(key)] = sender_data.pop(key)
+
+                for key in recipient_data:
+                    if "recipient_" not in key:
+                        recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
+
+                merged_data = sender_data.copy()
+                merged_data.update(recipient_data)
+
+                # uses translation table to map everything outside of the bmp
+                temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+                merged_data.update(temp_data_dict)
+
+                ds.append(merged_data)
+
+        df = pd.DataFrame(ds)
+        return df
+
+    def get_direct_message(self, id_=None, include_user_data=False):
+        """
+        Returns a single direct message object sent to the user tied to the API keys
+        in the form of a Pandas DataFrame
+
+        :param since_id:
+        :param id_:
+        :param full_text:
+        :return:
+        """
+
+        # get direct messages sent to the user from the API
+        data = self.client.get_direct_message(id=id_)
+
+        ds = []
+        dict_data = self._flatten_dict(data.__dict__)
+
+        temp_data_dict = {}
+
+        temp_data_dict['created_at'] = dict_data['created_at']
+        temp_data_dict['id'] = dict_data['id']
+        temp_data_dict['id_str'] = dict_data['id_str']
+
+        if dict_data['entities.urls']:
+            # only pull one type of URL from entities.url to avoid
+            # multiple, repetitive data per row in the entities.url column
+            for dictionary in dict_data['entities.urls']:
+                temp_data_dict['entities.urls_url'] = dictionary['url']
+
+        if dict_data['entities.user_mentions']:
+            for dictionary in dict_data['entities.user_mentions']:
+                temp_data_dict['entities.user_mentions_id_str'] = dictionary['id_str']
+                temp_data_dict['entities.user_mentions_name'] = dictionary['name']
+                temp_data_dict['entities.user_mentions_screen_name'] = dictionary['screen_name']
+
+        if dict_data['entities.hashtags']:
+            for dictionary in dict_data['entities.hashtags']:
+                temp_data_dict['entities.hashtags_text'] = dictionary['text']
+
+        # includes a large amount of data so this uses
+        # a user-settable boolean to add in recipient and sender info
+        if include_user_data:
+            sender_data = self._flatten_dict(dict_data['sender']._json)
+            recipient_data = self._flatten_dict(dict_data['recipient']._json)
+
+            for key in sender_data:
+                if "sender_" not in key:
+                    sender_data["sender_{}".format(key)] = sender_data.pop(key)
+
+            for key in recipient_data:
+                if "recipient_" not in key:
+                    recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
+
+            merged_data = sender_data.copy()
+            merged_data.update(recipient_data)
+
+            # uses translation table to map everything outside of the bmp
+            temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+            merged_data.update(temp_data_dict)
+
+            ds.append(merged_data)
+
+        df = pd.DataFrame(ds)
+        return df
+
+    def sent_direct_messages(self, since_id=None, max_id=None, limit=1, page=1, full_text=False,
+                             include_user_data=False):
+        """
+        Returns direct message objects sent by the user tied to the API keys
+        in the form of a Pandas DataFrame
+
+        :param since_id:
+        :param max_id:
+        :param count:
+        :param page:
+        :param full_text:
+        :return:
+        """
+
+        # get direct messages sent by the user from the API
+        data = self.client.sent_direct_messages(since_id=since_id, max_id=max_id,
+                                                count=limit, page=page, full_text=full_text)
+
+        ds = []
+        for direct_message in data:
+            dict_data = self._flatten_dict(direct_message.__dict__)
+
+            temp_data_dict = {}
+
+            temp_data_dict['created_at'] = dict_data['created_at']
+            temp_data_dict['id'] = dict_data['id']
+            temp_data_dict['id_str'] = dict_data['id_str']
+
+            if dict_data['entities.urls']:
+                # only pull one type of URL from entities.url to avoid
+                # multiple, repetitive data per row in the entities.url column
+                for dictionary in dict_data['entities.urls']:
+                    temp_data_dict['entities.urls_url'] = dictionary['url']
+
+            if dict_data['entities.user_mentions']:
+                for dictionary in dict_data['entities.user_mentions']:
+                    temp_data_dict['entities.user_mentions_id_str'] = dictionary['id_str']
+                    temp_data_dict['entities.user_mentions_name'] = dictionary['name']
+                    temp_data_dict['entities.user_mentions_screen_name'] = dictionary['screen_name']
+
+            if dict_data['entities.hashtags']:
+                for dictionary in dict_data['entities.hashtags']:
+                    temp_data_dict['entities.hashtags_text'] = dictionary['text']
+
+            # includes a large amount of data so this uses
+            # a user-settable boolean to add in recipient and sender info
+            if include_user_data:
+                sender_data = self._flatten_dict(dict_data['sender']._json)
+                recipient_data = self._flatten_dict(dict_data['recipient']._json)
+
+                for key in sender_data:
+                    if "sender_" not in key:
+                        sender_data["sender_{}".format(key)] = sender_data.pop(key)
+
+                for key in recipient_data:
+                    if "recipient_" not in key:
+                        recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
+
+                merged_data = sender_data.copy()
+                merged_data.update(recipient_data)
+
+                # uses translation table to map everything outside of the bmp
+                temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
+
+                merged_data.update(temp_data_dict)
+
+                ds.append(merged_data)
+
+        df = pd.DataFrame(ds)
+        return df
 
     # #################################################################
     # #####  Friendship Methods                                   #####
