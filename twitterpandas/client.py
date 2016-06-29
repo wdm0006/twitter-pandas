@@ -804,3 +804,52 @@ class TwitterPandas(object):
         df = pd.DataFrame(ds)
 
         return df
+
+    # #################################################################
+    # #####  Status Methods                                       #####
+    # #################################################################
+    def get_status(self, id_):
+    	"""
+    	Returns a single status specified by the ID parameter.
+
+    	:param id_: The numerical ID of the status.
+        :return:
+        """
+        data = self.client.get_status(id_)
+
+        ds = [self._flatten_dict(data._json, layers=3, drop_deeper=True)]
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def retweets(self, id_ = None, count = None):
+        """
+        Returns up to 100* of the first retweets of the given tweet.
+        Please read the discrepancies below.
+
+        DISCREPANCIES:
+			- while the tweepy API states that the first 100 tweets are returned, testing shows that the limit actually seems to waver between 89-91
+        	- testing shows that self.client.retweets always returns one less Status obect than specified in count
+        	- if the count <1, the number of retweets returned is 19
+
+        :param id_: The numerical ID of the status.
+        :param count: Specifies the number of retweets to retrieve.
+        """
+
+        # count += 1 # if you want to make up for the second discrepancy
+        data = self.client.retweets(id_, count)
+		# print(len(data)) # if you want to examine the first discrepancy
+        ds = []
+        # page through it and parse the results
+        for retweet in data:
+            retweet.__dict__.pop('_api')
+
+            # append retweet
+            ds.append(self._flatten_dict(retweet._json, layers=3, drop_deeper=True))
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+        return df
+
