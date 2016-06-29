@@ -9,20 +9,21 @@
 """
 
 import warnings
+import sys
+
 import tweepy
 import pandas as pd
-import sys
 
 __author__ = 'willmcginnis'
 
 NON_BMP_MAP = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
+
 
 class TwitterPandas(object):
     """
     The primary interface into twitter pandas, the client.
 
     """
-
 
     def __init__(self, oauth_token, oauth_secret, consumer_key, consumer_secret, timeout=60):
         """
@@ -66,8 +67,11 @@ class TwitterPandas(object):
         """
 
         for _ in range(layers):
-            data = [(k, v) if not isinstance(v, dict) else [(k + '.' + k2, v2) for k2, v2 in v.items()] for k, v in data.items()]
-            data = [item for sublist in data for item in sublist if isinstance(sublist, list)] + [y for y in data if not isinstance(y, list)]
+            data = [(k, v) if not isinstance(v, dict) else [(k + '.' + k2, v2) for k2, v2 in v.items()] for k, v in
+                    data.items()]
+            data = [item for sublist in data for item in sublist if isinstance(sublist, list)] + [y for y in data if
+                                                                                                  not isinstance(y,
+                                                                                                                 list)]
             data = dict(data)
 
         if drop_deeper:
@@ -259,7 +263,8 @@ class TwitterPandas(object):
         """
 
         if limit > 1000:
-            warnings.warn('WARNING: twitter\'s API will only return 1000 results, so we do too. Your limit isn\'t really doing anything here')
+            warnings.warn(
+                'WARNING: twitter\'s API will only return 1000 results, so we do too. Your limit isn\'t really doing anything here')
 
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
@@ -282,7 +287,7 @@ class TwitterPandas(object):
 
         return df
 
-    def get_user(self, id_=None, user_id=None, screen_name=None,):
+    def get_user(self, id_=None, user_id=None, screen_name=None, ):
         """
         Returns a dataframe with just one row, which contains all the information we have about that specific user.
 
@@ -485,14 +490,17 @@ class TwitterPandas(object):
 
         return df
 
-
     # #################################################################
     # #####  Saved Searches Methods                               #####
     # #################################################################
     def saved_searches(self):
         """
         Returns saved search attributes for the user tied to the API keys,
+<<<<<<< HEAD
         as a Pandas DataFrame that contains created_at, id, id_str, 
+=======
+        as a Pandas DataFrame that contains created_at, id, id_str,
+>>>>>>> master
         name, position, query as columns
 
         :return:
@@ -514,7 +522,6 @@ class TwitterPandas(object):
 
         return df
 
-
     def get_saved_search(self, id_):
         """
         Returns saved search attributes for one specific saved search object as a Pandas DataFrame
@@ -526,15 +533,15 @@ class TwitterPandas(object):
 
         # get saved search from the API
         data = self.client.get_saved_search(id_)
-    
+
         ds = []
 
         # remove _api attribute
         data.__dict__.pop('_api')
-        
+
         # append single saved search
         ds.append(self._flatten_dict(data.__dict__))
-        
+
         # convert a single SavedSearch object to a dataframe
         df = pd.DataFrame(ds)
 
@@ -613,7 +620,6 @@ class TwitterPandas(object):
         df = pd.DataFrame(ds)
         return df
 
-
     def get_direct_message(self, id_=None, include_user_data=False):
         """
         Returns a single direct message object sent to the user tied to the API keys
@@ -680,8 +686,8 @@ class TwitterPandas(object):
         df = pd.DataFrame(ds)
         return df
 
-
-    def sent_direct_messages(self, since_id=None, max_id=None, limit=1, page=1, full_text=False, include_user_data=False):
+    def sent_direct_messages(self, since_id=None, max_id=None, limit=1, page=1, full_text=False,
+                             include_user_data=False):
         """
         Returns direct message objects sent by the user tied to the API keys
         in the form of a Pandas DataFrame
@@ -749,4 +755,269 @@ class TwitterPandas(object):
                 ds.append(merged_data)
 
         df = pd.DataFrame(ds)
+        return df
+
+    # #################################################################
+    # #####  Friendship Methods                                   #####
+    # #################################################################
+    def exists_friendship(self, source_id=None, source_user_id=None, source_screen_name=None, target_id=None,
+                          target_user_id=None, target_screen_name=None):
+        """
+        Checks if a friendship exists between two users. Will return True if user_a follows user_b, otherwise False.
+
+        :param source_id: Specifies the ID or screen name of the source user.
+        :param source_user_id: Specifies the ID of the source user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param source_screen_name: Specifies the screen name of the source user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param target_id: Specifies the ID or screen name of the target user.
+        :param target_user_id: Specifies the ID of the target user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param target_screen_name: Specifies the screen name of the target user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :return:
+        """
+
+        # get friendship from the API
+        data = self.client.show_friendship(
+            source_id=source_id,
+            source_screen_name=source_screen_name,
+            target_id=target_id,
+            target_screen_name=target_screen_name
+        )
+
+        # return value of following attribute for user_a
+        return data[0].following
+
+    def show_friendship(self, source_id=None, source_screen_name=None, target_id=None, target_screen_name=None):
+        """
+        Returns detailed information about the relationship between two users.
+
+        :param source_id: The user_id of the subject user.
+        :param source_screen_name: The screen_name of the subject user.
+        :param target_id: The user_id of the target user.
+        :param target_screen_name: The screen_name of the target user.
+        :return:
+        """
+
+        # get friendship from the API
+        data = self.client.show_friendship(
+            source_id=source_id,
+            source_screen_name=source_screen_name,
+            target_id=target_id,
+            target_screen_name=target_screen_name
+        )
+
+        ds = []
+
+        # remove _api attribute
+        for user in data:
+            user.__dict__.pop('_api')
+
+            # append friendship search
+            ds.append(self._flatten_dict(user.__dict__))
+
+        # convert a single Friendship objects to a dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def friends_ids(self, id_=None, screen_name=None, user_id=None, limit=None):
+        """
+        Returns an array containing the IDs of users being followed by the specified user.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.1
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.friends_ids,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name
+
+        )
+
+        # page through it and parse results
+        ds = []
+
+        for friend in curr.items():
+            ds.append(friend)
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def followers_ids(self, id_=None, screen_name=None, user_id=None, limit=None):
+        """
+        Returns an array containing the IDs of users following the specified user.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.followers_ids,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name
+        )
+
+        # page through it and parse results
+        ds = []
+        for follower in curr.items():
+            ds.append(follower)
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+        # #################################################################
+
+    # #####  List Methods                                         #####
+    # #################################################################
+    def list_timeline(self, owner, slug, since_id=None, max_id=None, limit=None):
+        """
+        Show tweet timeline for members of the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :param since_id: Returns only statuses with an ID greater than (that is, more recent than) the specified ID.
+        :param max_id: Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.
+        :return:
+        """
+
+        data = self.client.list_timeline(
+            owner,
+            slug,
+            since_id=since_id,
+            max_id=max_id
+        )
+
+        # page through it and parse results
+        ds = []
+        for timeline_item in data:
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(timeline_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def get_list(self, owner=None, slug=None, limit=None):
+        """
+        Show the specified list. Private lists will only be shown if the authenticated user owns the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        data = self.client.get_list(
+            owner,
+            slug
+        )
+
+        # page through it and parse results
+        ds = []
+        for timeline_item in data:
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(timeline_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def list_members(self, owner=None, slug=None, limit=None):
+        """
+        Returns the members of the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # TODO: fix when it's fixed in tweepy: https://github.com/tweepy/tweepy/issues/697
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.get_list,
+            owner=owner,
+            slug=slug
+        )
+
+        ds = []
+
+        for list_item in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(list_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
+        return df
+
+    def list_subscribers(self, owner=None, slug=None, limit=None):
+        """
+        Returns the subscribers of the specified list.
+
+        :param owner: the screen name of the owner of the list
+        :param slug: the slug name or numerical ID of the list
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # TODO: fix when it's fixed in tweepy: https://github.com/tweepy/tweepy/issues/697
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.list_subscribers,
+            owner=owner,
+            slug=slug
+        )
+
+        # page through it and parse results
+        ds = []
+        for list_item in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            ds.append(self._flatten_dict(list_item._json, layers=3, drop_deeper=True))
+
+            if limit is not None:
+                if len(ds) >= limit:
+                    break
+
+        # form the dataframe
+        df = pd.DataFrame(ds)
+
         return df

@@ -49,11 +49,8 @@ Easy Issues / Getting Started
 
 Implement simple pass-thru methods returning a dataframe for the tweepy methods grouped under:
 
- * status methods
- * direct message methods
  * friendship methods
  * block methods
- * saved search methods
  * help methods
  * list methods
  * geo methods

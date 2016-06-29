@@ -20,6 +20,10 @@ to twitter-pandas will follow it's API pretty closely.  To start with I've imple
  * favorite methods
  * account methods
  * trends methods
+ * list methods
+ * saved search methods
+ * status methods
+ * direct message methods
  
 As well as some helper properties:
 
@@ -34,13 +38,9 @@ Going forward, we will work our way through [tweepy's api](http://docs.tweepy.or
 pandas-based interfaces to the methods in each of these groupings that return datasets (for now we are trying to stay 
 read-only where practical, with a data analysis focus).
 
- * status methods
- * direct message methods
  * friendship methods
  * block methods
- * saved search methods
  * help methods
- * list methods
  * geo methods
  
 The general idea is to:
@@ -62,12 +62,12 @@ Installation / Usage
 
 To install use pip:
 
-    $ pip install git+https://github.com/wdm0006/twitterpandas.git
+    $ pip install git+https://github.com/wdm0006/twitter-pandas.git
 
 
 Or clone the repo:
 
-    $ git clone https://github.com/wdm0006/twitterpandas.git
+    $ git clone https://github.com/wdm0006/twitter-pandas.git
     $ python setup.py install
     
 Then let 'er rip:
