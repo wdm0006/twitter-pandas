@@ -496,11 +496,7 @@ class TwitterPandas(object):
     def saved_searches(self):
         """
         Returns saved search attributes for the user tied to the API keys,
-<<<<<<< HEAD
         as a Pandas DataFrame that contains created_at, id, id_str, 
-=======
-        as a Pandas DataFrame that contains created_at, id, id_str,
->>>>>>> master
         name, position, query as columns
 
         :return:
@@ -886,8 +882,7 @@ class TwitterPandas(object):
 
         return df
 
-        # #################################################################
-
+    # #################################################################
     # #####  List Methods                                         #####
     # #################################################################
     def list_timeline(self, owner, slug, since_id=None, max_id=None, limit=None):
