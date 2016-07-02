@@ -24,7 +24,8 @@ to twitter-pandas will follow it's API pretty closely.  To start with I've imple
  * saved search methods
  * status methods
  * direct message methods
- 
+ * friendship methods
+  
 As well as some helper properties:
 
  * api_id
@@ -38,7 +39,6 @@ Going forward, we will work our way through [tweepy's api](http://docs.tweepy.or
 pandas-based interfaces to the methods in each of these groupings that return datasets (for now we are trying to stay 
 read-only where practical, with a data analysis focus).
 
- * friendship methods
  * block methods
  * help methods
  * geo methods
