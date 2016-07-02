@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="twitterpandas 0.0.1 documentation" href="index.html" />
-    <link rel="prev" title="Twitter-Pandas" href="index.html" />
+    <link rel="prev" title="twitter-pandas" href="index.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -68,203 +68,8 @@ raw responses if you prefer.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="module-twitterpandas.client">
-<span id="detailed-api-documentation"></span><h2>Detailed API Documentation<a class="headerlink" href="#module-twitterpandas.client" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="twitterpandas.client.TwitterPandas">
-<em class="property">class </em><code class="descclassname">twitterpandas.client.</code><code class="descname">TwitterPandas</code><span class="sig-paren">(</span><em>oauth_token</em>, <em>oauth_secret</em>, <em>consumer_key</em>, <em>consumer_secret</em>, <em>timeout=60</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas" title="Permalink to this definition">¶</a></dt>
-<dd><p>The primary interface into twitter pandas, the client.</p>
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.favorites">
-<code class="descname">favorites</code><span class="sig-paren">(</span><em>id_=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.favorites" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dataframe of all data about followers for the user tied to the API keys.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>id</strong> &#8211; Specifies the ID or screen name of the user.</li>
-<li><strong>limit</strong> &#8211; the maximum number of rows to return (optional, default None for all rows)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.followers">
-<code class="descname">followers</code><span class="sig-paren">(</span><em>id_=None</em>, <em>user_id=None</em>, <em>screen_name=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.followers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dataframe of all data about followers for the user tied to the API keys.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>id</strong> &#8211; Specifies the ID or screen name of the user.</li>
-<li><strong>user_id</strong> &#8211; Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.</li>
-<li><strong>screen_name</strong> &#8211; Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.</li>
-<li><strong>limit</strong> &#8211; the maximum number of rows to return (optional, default None for all rows)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.get_user">
-<code class="descname">get_user</code><span class="sig-paren">(</span><em>id_=None</em>, <em>user_id=None</em>, <em>screen_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.get_user" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dataframe with just one row, which contains all the information we have about that specific user.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>id</strong> &#8211; Specifies the ID or screen name of the user.</li>
-<li><strong>user_id</strong> &#8211; Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.</li>
-<li><strong>screen_name</strong> &#8211; Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.home_timeline">
-<code class="descname">home_timeline</code><span class="sig-paren">(</span><em>since_id=None</em>, <em>max_id=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.home_timeline" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>since_id</strong> &#8211; Returns only statuses with an ID greater than (that is, more recent than) the specified ID.</li>
-<li><strong>max_id</strong> &#8211; Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.</li>
-<li><strong>limit</strong> &#8211; the maximum number of rows to return (optional, default None for all rows)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.me">
-<code class="descname">me</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.me" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dataframe with just one row, which has all of the data avilable about the user tied to the API key.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.retweets_of_me">
-<code class="descname">retweets_of_me</code><span class="sig-paren">(</span><em>since_id=None</em>, <em>max_id=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.retweets_of_me" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>since_id</strong> &#8211; Returns only statuses with an ID greater than (that is, more recent than) the specified ID.</li>
-<li><strong>max_id</strong> &#8211; Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.</li>
-<li><strong>limit</strong> &#8211; the maximum number of rows to return (optional, default None for all rows)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.search_users">
-<code class="descname">search_users</code><span class="sig-paren">(</span><em>query=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.search_users" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lets you structure a query and returns a dataframe with all of the users that match that query (max 1000 results
-as per API rules)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>query</strong> &#8211; The query to run against people search.</li>
-<li><strong>limit</strong> &#8211; the maximum number of rows to return (optional, default None for all rows)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.statuses_lookup">
-<code class="descname">statuses_lookup</code><span class="sig-paren">(</span><em>id_=None</em>, <em>include_entities=None</em>, <em>trim_user=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.statuses_lookup" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>id</strong> &#8211; A list of Tweet IDs to lookup, up to 100</li>
-<li><strong>include_entities</strong> &#8211; A boolean indicating whether or not to include [entities](<a class="reference external" href="https://dev.twitter.com/docs/entities">https://dev.twitter.com/docs/entities</a>) in the returned tweets. Defaults to False.</li>
-<li><strong>trim_user</strong> &#8211; A boolean indicating if user IDs should be provided, instead of full user information. Defaults to False.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="twitterpandas.client.TwitterPandas.user_timeline">
-<code class="descname">user_timeline</code><span class="sig-paren">(</span><em>id_=None</em>, <em>user_id=None</em>, <em>screen_name=None</em>, <em>since_id=None</em>, <em>max_id=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#twitterpandas.client.TwitterPandas.user_timeline" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>id</strong> &#8211; Specifies the ID or screen name of the user.</li>
-<li><strong>user_id</strong> &#8211; Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.</li>
-<li><strong>screen_name</strong> &#8211; Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.</li>
-<li><strong>since_id</strong> &#8211; Returns only statuses with an ID greater than (that is, more recent than) the specified ID.</li>
-<li><strong>max_id</strong> &#8211; Returns only statuses with an ID less than (that is, older than) or equal to the specified ID.</li>
-<li><strong>limit</strong> &#8211; the maximum number of rows to return (optional, default None for all rows)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="detailed-api-documentation">
+<h2>Detailed API Documentation<a class="headerlink" href="#detailed-api-documentation" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -278,7 +83,7 @@ as per API rules)</p>
   <ul>
 <li><a class="reference internal" href="#">API Usage</a><ul>
 <li><a class="reference internal" href="#setting-up-a-connection">Setting up a connection</a></li>
-<li><a class="reference internal" href="#module-twitterpandas.client">Detailed API Documentation</a></li>
+<li><a class="reference internal" href="#detailed-api-documentation">Detailed API Documentation</a></li>
 </ul>
 </li>
 </ul>
@@ -286,7 +91,7 @@ as per API rules)</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Twitter-Pandas</a></li>
+      <li>Previous: <a href="index.html" title="previous chapter">twitter-pandas</a></li>
   </ul></li>
 </ul>
 </div>

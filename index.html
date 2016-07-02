@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Twitter-Pandas &mdash; twitterpandas 0.0.1 documentation</title>
+    <title>twitter-pandas &mdash; twitterpandas 0.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -38,15 +38,14 @@
           <div class="body" role="main">
             
   <div class="section" id="twitter-pandas">
-<h1>Twitter-Pandas<a class="headerlink" href="#twitter-pandas" title="Permalink to this headline">¶</a></h1>
+<h1>twitter-pandas<a class="headerlink" href="#twitter-pandas" title="Permalink to this headline">¶</a></h1>
 <p>version number: 0.0.1
 author: Will McGinnis</p>
 <div class="section" id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p>A library for getting and interacting with twitter data via pandas.  Currently very in-flux, based heavily on my other
 library of this type: [git-pandas](<a class="reference external" href="https://github.com/wdm0006/git-pandas">https://github.com/wdm0006/git-pandas</a>).</p>
-<div class="section" id="current-state">
-<h3>Current State<a class="headerlink" href="#current-state" title="Permalink to this headline">¶</a></h3>
+<p>### Current State</p>
 <p>The library itself is based heavily on [tweepy](<a class="reference external" href="http://docs.tweepy.org/en/v3.5.0/">http://docs.tweepy.org/en/v3.5.0/</a>), and as such the development and API
 to twitter-pandas will follow it&#8217;s API pretty closely.  To start with I&#8217;ve implemented the:</p>
 <blockquote>
@@ -54,6 +53,13 @@ to twitter-pandas will follow it&#8217;s API pretty closely.  To start with I&#8
 <li>user methods</li>
 <li>timeline methods</li>
 <li>favorite methods</li>
+<li>account methods</li>
+<li>trends methods</li>
+<li>list methods</li>
+<li>saved search methods</li>
+<li>status methods</li>
+<li>direct message methods</li>
+<li>friendship methods</li>
 </ul>
 </div></blockquote>
 <p>As well as some helper properties:</p>
@@ -64,23 +70,14 @@ to twitter-pandas will follow it&#8217;s API pretty closely.  To start with I&#8
 </ul>
 </div></blockquote>
 <p>Which help access data tied to the API key&#8217;s account quickly.</p>
-</div>
-<div class="section" id="roadmap">
-<h3>Roadmap<a class="headerlink" href="#roadmap" title="Permalink to this headline">¶</a></h3>
+<p>### Roadmap</p>
 <p>Going forward, we will work our way through [tweepy&#8217;s api](<a class="reference external" href="http://docs.tweepy.org/en/v3.5.0/api.html">http://docs.tweepy.org/en/v3.5.0/api.html</a>), providing
 pandas-based interfaces to the methods in each of these groupings that return datasets (for now we are trying to stay
 read-only where practical, with a data analysis focus).</p>
 <blockquote>
 <div><ul class="simple">
-<li>status methods</li>
-<li>direct message methods</li>
-<li>friendship methods</li>
-<li>account methods</li>
 <li>block methods</li>
-<li>saved search methods</li>
 <li>help methods</li>
-<li>list methods</li>
-<li>trend methods</li>
 <li>geo methods</li>
 </ul>
 </div></blockquote>
@@ -108,16 +105,39 @@ read-only where practical, with a data analysis focus).</p>
 <p>Any feedback on analysis tasks that you commonly do and could be made simpler with this library would be extremely
 valuable, so please open up an issue with suggestions.</p>
 </div>
-</div>
 <div class="section" id="installation-usage">
 <h2>Installation / Usage<a class="headerlink" href="#installation-usage" title="Permalink to this headline">¶</a></h2>
 <p>To install use pip:</p>
 <blockquote>
-<div>$ pip install git+https://github.com/wdm0006/twitterpandas.git</div></blockquote>
+<div>$ pip install git+https://github.com/wdm0006/twitter-pandas.git</div></blockquote>
 <p>Or clone the repo:</p>
 <blockquote>
-<div>$ git clone <a class="reference external" href="https://github.com/wdm0006/twitterpandas.git">https://github.com/wdm0006/twitterpandas.git</a>
+<div>$ git clone <a class="reference external" href="https://github.com/wdm0006/twitter-pandas.git">https://github.com/wdm0006/twitter-pandas.git</a>
 $ python setup.py install</div></blockquote>
+<p>Then let &#8216;er rip:</p>
+<blockquote>
+<div><p>from twitterpandas import TwitterPandas</p>
+<p># create a twitter pandas client object
+tp = TwitterPandas(</p>
+<blockquote>
+<div>TWITTER_OAUTH_TOKEN,
+TWITTER_OAUTH_SECRET,
+TWITTER_CONSUMER_KEY,
+TWITTER_CONSUMER_SECRET</div></blockquote>
+<p>)</p>
+<p># create a dataframe with 10 of my own followers
+df = tp.followers(limit=10)
+print(df.head())</p>
+<p># create a dataframe with my own information
+df = tp.me()
+print(df)</p>
+<p># get a dataframe with the information of user willmcginnis
+df = tp.get_user(screen_name=&#8217;willmcginnis&#8217;)
+print(df)</p>
+<p># get back 10 users who match the query willmcginnis
+df = tp.search_users(query=&#8217;willmcginnis&#8217;, limit=10)
+print(df)</p>
+</div></blockquote>
 </div>
 <div class="section" id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
@@ -139,7 +159,7 @@ TWITTER_CONSUMER_SECRET = &#8216;bat&#8217;</div></blockquote>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_usage.html">API Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api_usage.html#setting-up-a-connection">Setting up a connection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_usage.html#module-twitterpandas.client">Detailed API Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_usage.html#detailed-api-documentation">Detailed API Documentation</a></li>
 </ul>
 </li>
 </ul>
@@ -163,12 +183,8 @@ TWITTER_CONSUMER_SECRET = &#8216;bat&#8217;</div></blockquote>
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Twitter-Pandas</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a><ul>
-<li><a class="reference internal" href="#current-state">Current State</a></li>
-<li><a class="reference internal" href="#roadmap">Roadmap</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">twitter-pandas</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#installation-usage">Installation / Usage</a></li>
 <li><a class="reference internal" href="#contributing">Contributing</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
