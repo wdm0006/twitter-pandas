@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Twitter-Pandas
+twitter-pandas
 ==============
 
 version number: 0.0.1
@@ -15,8 +15,7 @@ Overview
 A library for getting and interacting with twitter data via pandas.  Currently very in-flux, based heavily on my other
 library of this type: [git-pandas](https://github.com/wdm0006/git-pandas).
 
-Current State
-^^^^^^^^^^^^^
+### Current State
 
 The library itself is based heavily on [tweepy](http://docs.tweepy.org/en/v3.5.0/), and as such the development and API
 to twitter-pandas will follow it's API pretty closely.  To start with I've implemented the:
@@ -24,6 +23,13 @@ to twitter-pandas will follow it's API pretty closely.  To start with I've imple
  * user methods
  * timeline methods
  * favorite methods
+ * account methods
+ * trends methods
+ * list methods
+ * saved search methods
+ * status methods
+ * direct message methods
+ * friendship methods
 
 As well as some helper properties:
 
@@ -32,22 +38,14 @@ As well as some helper properties:
 
 Which help access data tied to the API key's account quickly.
 
-Roadmap
-^^^^^^^
+### Roadmap
 
 Going forward, we will work our way through [tweepy's api](http://docs.tweepy.org/en/v3.5.0/api.html), providing
 pandas-based interfaces to the methods in each of these groupings that return datasets (for now we are trying to stay
 read-only where practical, with a data analysis focus).
 
- * status methods
- * direct message methods
- * friendship methods
- * account methods
  * block methods
- * saved search methods
  * help methods
- * list methods
- * trend methods
  * geo methods
 
 The general idea is to:
@@ -69,13 +67,41 @@ Installation / Usage
 
 To install use pip:
 
-    $ pip install git+https://github.com/wdm0006/twitterpandas.git
+    $ pip install git+https://github.com/wdm0006/twitter-pandas.git
 
 
 Or clone the repo:
 
-    $ git clone https://github.com/wdm0006/twitterpandas.git
+    $ git clone https://github.com/wdm0006/twitter-pandas.git
     $ python setup.py install
+
+Then let 'er rip:
+
+    from twitterpandas import TwitterPandas
+
+    # create a twitter pandas client object
+    tp = TwitterPandas(
+        TWITTER_OAUTH_TOKEN,
+        TWITTER_OAUTH_SECRET,
+        TWITTER_CONSUMER_KEY,
+        TWITTER_CONSUMER_SECRET
+    )
+
+    # create a dataframe with 10 of my own followers
+    df = tp.followers(limit=10)
+    print(df.head())
+
+    # create a dataframe with my own information
+    df = tp.me()
+    print(df)
+
+    # get a dataframe with the information of user willmcginnis
+    df = tp.get_user(screen_name='willmcginnis')
+    print(df)
+
+    # get back 10 users who match the query willmcginnis
+    df = tp.search_users(query='willmcginnis', limit=10)
+    print(df)
 
 Contributing
 ------------

@@ -1,4 +1,4 @@
 v0.0.1
 ======
 
- * First Draft
+ * First Draft, replication of tweepy API.
