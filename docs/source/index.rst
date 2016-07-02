@@ -67,7 +67,7 @@ Installation / Usage
 
 To install use pip:
 
-    $ pip install git+https://github.com/wdm0006/twitter-pandas.git
+    $ pip install twitterpandas
 
 
 Or clone the repo:

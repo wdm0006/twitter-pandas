@@ -3,6 +3,8 @@
 # C extensions
 *.so
 
+dist
+
 # pycharm
 .idea/
 .idea
@@ -41,3 +43,5 @@ output/
 
 # Mac files
 .DS_Store
+
+dist/twitterpandas-0.0.1.tar.gz
