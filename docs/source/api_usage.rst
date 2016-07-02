@@ -38,5 +38,5 @@ To set up a connection just:
 Detailed API Documentation
 --------------------------
 
-.. automodule:: twitterpandas.client
+.. autoclass:: twitterpandas.client.TwitterPandas
    :members:

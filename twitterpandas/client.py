@@ -1021,10 +1021,10 @@ class TwitterPandas(object):
     # #####  Status Methods                                       #####
     # #################################################################
     def get_status(self, id_):
-    	"""
-    	Returns a single status specified by the ID parameter.
+        """
+        Returns a single status specified by the ID parameter.
 
-    	:param id_: The numerical ID of the status.
+        :param id_: The numerical ID of the status.
         :return:
         """
         data = self.client.get_status(id_)
@@ -1036,7 +1036,7 @@ class TwitterPandas(object):
 
         return df
 
-    def retweets(self, id_ = None, count = None):
+    def retweets(self, id_=None, count=None):
         """
         Returns up to 100* of the first retweets of the given tweet.
         Please read the discrepancies below.
@@ -1052,7 +1052,7 @@ class TwitterPandas(object):
 
         # count += 1 # if you want to make up for the second discrepancy
         data = self.client.retweets(id_, count)
-		# print(len(data)) # if you want to examine the first discrepancy
+        # print(len(data)) # if you want to examine the first discrepancy
         ds = []
         # page through it and parse the results
         for retweet in data:
@@ -1064,4 +1064,3 @@ class TwitterPandas(object):
         # form the dataframe
         df = pd.DataFrame(ds)
         return df
-
