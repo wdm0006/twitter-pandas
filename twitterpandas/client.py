@@ -10,7 +10,7 @@
 
 import warnings
 import sys
-
+import time
 import tweepy
 import pandas as pd
 
@@ -48,12 +48,28 @@ class TwitterPandas(object):
             auth,
             wait_on_rate_limit=True,
             wait_on_rate_limit_notify=True,
-            timeout=True
+            timeout=60,
+            retry_count=5,
+            retry_delay=60,
+            retry_errors={401, 404, 500, 503},
         )
 
     # #################################################################
     # #####  Internal functions and protected methods             #####
     # #################################################################
+    def retry_call(self, func, retries, **kwargs):
+        try:
+            out = func(**kwargs)
+            return out
+        except tweepy.TweepError as e:
+            warnings.warn(str(e))
+            time.sleep(5)
+            if retries > 0:
+                out = self.retry_call(func, retries - 1, **kwargs)
+                return out
+            else:
+                raise e
+
     def _flatten_dict(self, data, layers=1, drop_deeper=True):
         """
         takes in a dictionary and will flatten it with level_1.level_2 as the key, for however many levels are
@@ -756,16 +772,13 @@ class TwitterPandas(object):
     # #################################################################
     # #####  Friendship Methods                                   #####
     # #################################################################
-    def exists_friendship(self, source_id=None, source_user_id=None, source_screen_name=None, target_id=None,
-                          target_user_id=None, target_screen_name=None):
+    def exists_friendship(self, source_id=None, source_screen_name=None, target_id=None, target_screen_name=None):
         """
         Checks if a friendship exists between two users. Will return True if user_a follows user_b, otherwise False.
 
         :param source_id: Specifies the ID or screen name of the source user.
-        :param source_user_id: Specifies the ID of the source user. Helpful for disambiguating when a valid user ID is also a valid screen name.
         :param source_screen_name: Specifies the screen name of the source user. Helpful for disambiguating when a valid screen name is also a user ID.
         :param target_id: Specifies the ID or screen name of the target user.
-        :param target_user_id: Specifies the ID of the target user. Helpful for disambiguating when a valid user ID is also a valid screen name.
         :param target_screen_name: Specifies the screen name of the target user. Helpful for disambiguating when a valid screen name is also a user ID.
         :return:
         """
@@ -781,7 +794,7 @@ class TwitterPandas(object):
         # return value of following attribute for user_a
         return data[0].following
 
-    def show_friendship(self, source_id=None, source_screen_name=None, target_id=None, target_screen_name=None):
+    def show_friendship(self, source_id=None, source_screen_name=None, target_id=None, target_screen_name=None, rich=False):
         """
         Returns detailed information about the relationship between two users.
 
@@ -789,39 +802,54 @@ class TwitterPandas(object):
         :param source_screen_name: The screen_name of the subject user.
         :param target_id: The user_id of the target user.
         :param target_screen_name: The screen_name of the target user.
+        :param rich: (optional, default=False) specifies whether to return rich or sparse output data.
         :return:
         """
 
         # get friendship from the API
-        data = self.client.show_friendship(
+        data = self.retry_call(
+            self.client.show_friendship,
+            5,
             source_id=source_id,
             source_screen_name=source_screen_name,
             target_id=target_id,
             target_screen_name=target_screen_name
         )
 
-        ds = []
-
-        # remove _api attribute
-        for user in data:
-            user.__dict__.pop('_api')
-
-            # append friendship search
-            ds.append(self._flatten_dict(user.__dict__))
+        # show_friendship returns a tuple of friendship objects, so parse them into a dict.
+        source_user = data[0]
+        target_user = data[1]
+        ds = [{
+            'source_user_id': source_user.id,
+            'source_user_id_str': source_user.id_str,
+            'source_user_screen_name': source_user.screen_name,
+            'target_user_id': target_user.id,
+            'target_user_id_str': target_user.id_str,
+            'target_user_screen_name': target_user.screen_name,
+            'target_follows_source': source_user.followed_by,
+            'source_follows_target': source_user.following,
+            'mutual_friendship': target_user.following and target_user.followed_by,
+            'target_blocked_source': source_user.blocked_by,
+            'source_blocked_target': source_user.blocking,
+            'mutual_blocking': source_user.blocking and source_user.blocked_by,
+            'can_dm': source_user.can_dm
+        }]
 
         # convert a single Friendship objects to a dataframe
         df = pd.DataFrame(ds)
 
         return df
 
-    def friends_ids(self, id_=None, screen_name=None, user_id=None, limit=None):
+    def friends_friendships(self, id_=None, screen_name=None, user_id=None, limit=None, rich=False):
         """
-        Returns an array containing the IDs of users being followed by the specified user.
+        Returns a dataframe with the informatino about the friends of a user.  If rich is set to false, the only thing
+        returned is a list of ids.  Otherwise, the full friendship of all friends is returned.
 
         :param id_: Specifies the ID or screen name of the user.
         :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.1
         :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
         :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :param rich: (optional, default=False) specifies whether to return rich or sparse output data.
         :return:
         """
 
@@ -844,12 +872,22 @@ class TwitterPandas(object):
                 if len(ds) >= limit:
                     break
 
-        # form the dataframe
-        df = pd.DataFrame(ds)
+        # form the dataframe itself depending on configured richness
+        if rich:
+            df = self.show_friendship(source_id=id_, source_screen_name=screen_name, target_id=ds[0], rich=True)
+            for friend_id in ds[1:]:
+                df = df.append(self.show_friendship(
+                    source_id=id_,
+                    source_screen_name=screen_name,
+                    target_id=friend_id,
+                    rich=True
+                ))
+        else:
+            df = pd.DataFrame(ds, columns=['id'])
 
         return df
 
-    def followers_ids(self, id_=None, screen_name=None, user_id=None, limit=None):
+    def followers_friendships(self, id_=None, screen_name=None, user_id=None, limit=None, rich=False):
         """
         Returns an array containing the IDs of users following the specified user.
 
@@ -857,6 +895,7 @@ class TwitterPandas(object):
         :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
         :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
         :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :param rich: (optional, default=False) specifies whether to return rich or sparse output data.
         :return:
         """
 
@@ -877,8 +916,18 @@ class TwitterPandas(object):
                 if len(ds) >= limit:
                     break
 
-        # form the dataframe
-        df = pd.DataFrame(ds)
+        # form the dataframe itself depending on configured richness
+        if rich:
+            df = self.show_friendship(source_id=id_, source_screen_name=screen_name, target_id=ds[0], rich=True)
+            for friend_id in ds[1:]:
+                df = df.append(self.show_friendship(
+                    source_id=id_,
+                    source_screen_name=screen_name,
+                    target_id=friend_id,
+                    rich=True
+                ))
+        else:
+            df = pd.DataFrame(ds, columns=['id'])
 
         return df
 
@@ -1042,9 +1091,9 @@ class TwitterPandas(object):
         Please read the discrepancies below.
 
         DISCREPANCIES:
-			- while the tweepy API states that the first 100 tweets are returned, testing shows that the limit actually seems to waver between 89-91
-        	- testing shows that self.client.retweets always returns one less Status obect than specified in count
-        	- if the count <1, the number of retweets returned is 19
+            - while the tweepy API states that the first 100 tweets are returned, testing shows that the limit actually seems to waver between 89-91
+            - testing shows that self.client.retweets always returns one less Status obect than specified in count
+            - if the count <1, the number of retweets returned is 19
 
         :param id_: The numerical ID of the status.
         :param count: Specifies the number of retweets to retrieve.

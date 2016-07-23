@@ -18,7 +18,7 @@ install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
 dependency_links = [x.strip().replace('git+', '') for x in all_reqs if 'git+' not in x]
 
 setup(
-    name='twitterpandas',
+    name='twitter-pandas',
     version=__version__,
     description='A library for getting and interacting with twitter data via pandas',
     long_description=long_description,
