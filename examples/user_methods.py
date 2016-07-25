@@ -11,6 +11,9 @@ if __name__ == '__main__':
         TWITTER_CONSUMER_SECRET
     )
 
+    df = tp.friends(limit=10)
+    print(df.head())
+
     df = tp.followers(limit=10)
     print(df.head())
 

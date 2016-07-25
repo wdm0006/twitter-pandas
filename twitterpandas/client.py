@@ -268,6 +268,43 @@ class TwitterPandas(object):
 
         return df
 
+    def friends(self, id_=None, user_id=None, screen_name=None, limit=None):
+        """
+        Returns a dataframe of all data about friends for the user tied to the API keys.
+
+        :param id_: Specifies the ID or screen name of the user.
+        :param user_id: Specifies the ID of the user. Helpful for disambiguating when a valid user ID is also a valid screen name.
+        :param screen_name: Specifies the screen name of the user. Helpful for disambiguating when a valid screen name is also a user ID.
+        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :return:
+        """
+
+        # create a tweepy cursor to safely return the data
+        curr = tweepy.Cursor(
+            self.client.friends_ids,
+            id_=id_,
+            user_id=user_id,
+            screen_name=screen_name
+        )
+
+        # page through it and parse results
+        df = None
+        counter = 1
+        for friend_id in curr.items():
+            # get the raw json, flatten it one layer and then discard anything nested farther
+            if df is None:
+                df = self.get_user(user_id=friend_id)
+            else:
+                df.append(self.get_user(user_id=friend_id))
+
+            if limit is not None:
+                if counter >= limit:
+                    break
+
+            counter += 1
+
+        return df
+
     def search_users(self, query=None, limit=None):
         """
         Lets you structure a query and returns a dataframe with all of the users that match that query (max 1000 results
@@ -313,7 +350,9 @@ class TwitterPandas(object):
         :return:
         """
 
-        data = self.client.get_user(
+        data = self.retry_call(
+            self.client.get_user,
+            5,
             id_=id_,
             user_id=user_id,
             screen_name=screen_name
@@ -784,7 +823,9 @@ class TwitterPandas(object):
         """
 
         # get friendship from the API
-        data = self.client.show_friendship(
+        data = self.retry_call(
+            self.client.show_friendship,
+            5,
             source_id=source_id,
             source_screen_name=source_screen_name,
             target_id=target_id,
