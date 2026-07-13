@@ -39,10 +39,9 @@ Twitter-pandas is still a very young project, but we do have a few guiding princ
 Running Tests
 =============
 
-Test coverage is non-existant right now, so help out by writing tests for new code. To run the tests, use:
+Tests use pytest. To run the test suite with coverage, use:
 
-    $ nosetests --with-coverage
-    $ coverage html
+    $ pytest --cov=twitterpandas --cov-report=html
     
 Easy Issues / Getting Started
 =============================
