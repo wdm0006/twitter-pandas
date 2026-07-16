@@ -650,23 +650,18 @@ class TwitterPandas(object):
                 sender_data = self._flatten_dict(dict_data['sender']._json)
                 recipient_data = self._flatten_dict(dict_data['recipient']._json)
 
-                for key in sender_data:
-                    if "sender_" not in key:
-                        sender_data["sender_{}".format(key)] = sender_data.pop(key)
-
-                for key in recipient_data:
-                    if "recipient_" not in key:
-                        recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
-
-                merged_data = sender_data.copy()
-                merged_data.update(recipient_data)
+                sender_data = {key if "sender_" in key else "sender_{}".format(key): value
+                               for key, value in sender_data.items()}
+                recipient_data = {key if "recipient_" in key else "recipient_{}".format(key): value
+                                  for key, value in recipient_data.items()}
 
                 # uses translation table to map everything outside of the bmp
                 temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
 
-                merged_data.update(temp_data_dict)
+                temp_data_dict.update(sender_data)
+                temp_data_dict.update(recipient_data)
 
-                ds.append(merged_data)
+            ds.append(temp_data_dict)
 
         df = pd.DataFrame(ds)
         return df
@@ -716,23 +711,18 @@ class TwitterPandas(object):
             sender_data = self._flatten_dict(dict_data['sender']._json)
             recipient_data = self._flatten_dict(dict_data['recipient']._json)
 
-            for key in sender_data:
-                if "sender_" not in key:
-                    sender_data["sender_{}".format(key)] = sender_data.pop(key)
-
-            for key in recipient_data:
-                if "recipient_" not in key:
-                    recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
-
-            merged_data = sender_data.copy()
-            merged_data.update(recipient_data)
+            sender_data = {key if "sender_" in key else "sender_{}".format(key): value
+                           for key, value in sender_data.items()}
+            recipient_data = {key if "recipient_" in key else "recipient_{}".format(key): value
+                              for key, value in recipient_data.items()}
 
             # uses translation table to map everything outside of the bmp
             temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
 
-            merged_data.update(temp_data_dict)
+            temp_data_dict.update(sender_data)
+            temp_data_dict.update(recipient_data)
 
-            ds.append(merged_data)
+        ds.append(temp_data_dict)
 
         df = pd.DataFrame(ds)
         return df
@@ -787,23 +777,18 @@ class TwitterPandas(object):
                 sender_data = self._flatten_dict(dict_data['sender']._json)
                 recipient_data = self._flatten_dict(dict_data['recipient']._json)
 
-                for key in sender_data:
-                    if "sender_" not in key:
-                        sender_data["sender_{}".format(key)] = sender_data.pop(key)
-
-                for key in recipient_data:
-                    if "recipient_" not in key:
-                        recipient_data["recipient_{}".format(key)] = recipient_data.pop(key)
-
-                merged_data = sender_data.copy()
-                merged_data.update(recipient_data)
+                sender_data = {key if "sender_" in key else "sender_{}".format(key): value
+                               for key, value in sender_data.items()}
+                recipient_data = {key if "recipient_" in key else "recipient_{}".format(key): value
+                                  for key, value in recipient_data.items()}
 
                 # uses translation table to map everything outside of the bmp
                 temp_data_dict['full_text'] = dict_data['text'].translate(NON_BMP_MAP)
 
-                merged_data.update(temp_data_dict)
+                temp_data_dict.update(sender_data)
+                temp_data_dict.update(recipient_data)
 
-                ds.append(merged_data)
+            ds.append(temp_data_dict)
 
         df = pd.DataFrame(ds)
         return df
