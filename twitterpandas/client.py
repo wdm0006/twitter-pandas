@@ -288,20 +288,17 @@ class TwitterPandas(object):
         )
 
         # page through it and parse results
-        df = None
-        counter = 1
+        frames = []
         for friend_id in curr.items():
             # get the raw json, flatten it one layer and then discard anything nested farther
-            if df is None:
-                df = self.get_user(user_id=friend_id)
-            else:
-                df.append(self.get_user(user_id=friend_id))
+            frames.append(self.get_user(user_id=friend_id))
 
             if limit is not None:
-                if counter >= limit:
+                if len(frames) >= limit:
                     break
 
-            counter += 1
+        # form the dataframe
+        df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
         return df
 
@@ -315,7 +312,7 @@ class TwitterPandas(object):
         :return:
         """
 
-        if limit > 1000:
+        if limit is not None and limit > 1000:
             warnings.warn(
                 'WARNING: twitter\'s API will only return 1000 results, so we do too. Your limit isn\'t really doing anything here')
 
