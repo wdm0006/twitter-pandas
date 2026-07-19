@@ -248,7 +248,7 @@ class TwitterPandas(object):
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
             self.client.followers,
-            id_=id_,
+            id=id_,
             user_id=user_id,
             screen_name=screen_name
         )
@@ -282,7 +282,7 @@ class TwitterPandas(object):
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
             self.client.friends_ids,
-            id_=id_,
+            id=id_,
             user_id=user_id,
             screen_name=screen_name
         )
@@ -350,7 +350,7 @@ class TwitterPandas(object):
         data = self.retry_call(
             self.client.get_user,
             5,
-            id_=id_,
+            id=id_,
             user_id=user_id,
             screen_name=screen_name
         )
@@ -454,7 +454,7 @@ class TwitterPandas(object):
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
             self.client.user_timeline,
-            id_=id_,
+            id=id_,
             user_id=user_id,
             screen_name=screen_name,
             since_id=since_id,
@@ -879,7 +879,7 @@ class TwitterPandas(object):
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
             self.client.friends_ids,
-            id_=id_,
+            id=id_,
             user_id=user_id,
             screen_name=screen_name
 
@@ -925,7 +925,7 @@ class TwitterPandas(object):
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
             self.client.followers_ids,
-            id_=id_,
+            id=id_,
             user_id=user_id,
             screen_name=screen_name
         )
