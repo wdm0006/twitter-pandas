@@ -897,14 +897,15 @@ class TwitterPandas(object):
 
         # form the dataframe itself depending on configured richness
         if rich:
-            df = self.show_friendship(source_id=id_, source_screen_name=screen_name, target_id=ds[0], rich=True)
-            for friend_id in ds[1:]:
-                df = df.append(self.show_friendship(
+            frames = []
+            for friend_id in ds:
+                frames.append(self.show_friendship(
                     source_id=id_,
                     source_screen_name=screen_name,
                     target_id=friend_id,
                     rich=True
                 ))
+            df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
         else:
             df = pd.DataFrame(ds, columns=['id'])
 
@@ -941,14 +942,15 @@ class TwitterPandas(object):
 
         # form the dataframe itself depending on configured richness
         if rich:
-            df = self.show_friendship(source_id=id_, source_screen_name=screen_name, target_id=ds[0], rich=True)
-            for friend_id in ds[1:]:
-                df = df.append(self.show_friendship(
+            frames = []
+            for friend_id in ds:
+                frames.append(self.show_friendship(
                     source_id=id_,
                     source_screen_name=screen_name,
                     target_id=friend_id,
                     rich=True
                 ))
+            df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
         else:
             df = pd.DataFrame(ds, columns=['id'])
 
