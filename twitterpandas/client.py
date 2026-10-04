@@ -971,16 +971,17 @@ class TwitterPandas(object):
         :return:
         """
 
-        data = self.client.list_timeline(
-            owner,
-            slug,
+        curr = tweepy.Cursor(
+            self.client.list_timeline,
+            owner_screen_name=owner,
+            slug=slug,
             since_id=since_id,
             max_id=max_id
         )
 
         # page through it and parse results
         ds = []
-        for timeline_item in data:
+        for timeline_item in curr.items():
             # get the raw json, flatten it one layer and then discard anything nested farther
             ds.append(self._flatten_dict(timeline_item._json, layers=3, drop_deeper=True))
 
@@ -999,24 +1000,16 @@ class TwitterPandas(object):
 
         :param owner: the screen name of the owner of the list
         :param slug: the slug name or numerical ID of the list
-        :param limit: the maximum number of rows to return (optional, default None for all rows)
+        :param limit: accepted for compatibility; ignored for this single-list endpoint
         :return:
         """
 
         data = self.client.get_list(
-            owner,
-            slug
+            owner_screen_name=owner,
+            slug=slug
         )
 
-        # page through it and parse results
-        ds = []
-        for timeline_item in data:
-            # get the raw json, flatten it one layer and then discard anything nested farther
-            ds.append(self._flatten_dict(timeline_item._json, layers=3, drop_deeper=True))
-
-            if limit is not None:
-                if len(ds) >= limit:
-                    break
+        ds = [self._flatten_dict(data._json, layers=3, drop_deeper=True)]
 
         # form the dataframe
         df = pd.DataFrame(ds)
@@ -1033,12 +1026,10 @@ class TwitterPandas(object):
         :return:
         """
 
-        # TODO: fix when it's fixed in tweepy: https://github.com/tweepy/tweepy/issues/697
-
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
-            self.client.get_list,
-            owner=owner,
+            self.client.list_members,
+            owner_screen_name=owner,
             slug=slug
         )
 
@@ -1067,12 +1058,10 @@ class TwitterPandas(object):
         :return:
         """
 
-        # TODO: fix when it's fixed in tweepy: https://github.com/tweepy/tweepy/issues/697
-
         # create a tweepy cursor to safely return the data
         curr = tweepy.Cursor(
             self.client.list_subscribers,
-            owner=owner,
+            owner_screen_name=owner,
             slug=slug
         )
 
