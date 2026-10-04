@@ -48,7 +48,7 @@ class TwitterPandas(object):
             auth,
             wait_on_rate_limit=True,
             wait_on_rate_limit_notify=True,
-            timeout=60,
+            timeout=timeout,
             retry_count=5,
             retry_delay=60,
             retry_errors={401, 404, 500, 503},
