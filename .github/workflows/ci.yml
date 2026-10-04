@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install locked dependencies
+        run: uv sync --locked --python 3.12
+      - name: Run unit tests
+        run: uv run --locked pytest tests
+      - name: Build wheel and sdist
+        run: uv build
+      - name: Install sdist into a clean environment
+        run: |
+          uv venv --python 3.12 "$RUNNER_TEMP/sdist-venv"
+          uv pip install --python "$RUNNER_TEMP/sdist-venv/bin/python" dist/*.tar.gz
+      - name: Smoke test installed package
+        run: |
+          cp tests/smoke_installed.py "$RUNNER_TEMP/smoke_installed.py"
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/sdist-venv/bin/python" smoke_installed.py

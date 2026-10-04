@@ -45,3 +45,4 @@ output/
 .DS_Store
 
 dist/twitterpandas-0.0.1.tar.gz
+.venv

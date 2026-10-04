@@ -73,7 +73,7 @@ To install use pip:
 Or clone the repo:
 
     $ git clone https://github.com/wdm0006/twitter-pandas.git
-    $ python setup.py install
+    $ pip install twitter-pandas
 
 Then let 'er rip:
 
